@@ -1,49 +1,87 @@
+use strict;
+use warnings;
+
 package Mattermost
 
-use REST::Client;
-use Cpanel::JSON;
+use Cpanel::JSON	();
+use Try::Tiny;
+use Cpanel::HTTP::Tiny::FastSSLVerify	();
 
-use strict;
 ## See Cpanel::Pushbullet for example
+sub new {
+    my ($class, %opts) = @_;
 
-our $host = 'https://mm.app.prd.de.ku.cx/api/';
-our $apiVer = '/api/v3';
+    $host = "https://$host" unless $host =~ m{^https?://}i;
+
+    my $self = {
+        host     	=> $opts->{'host'},
+        user     	=> $opts->{'user'},
+        pass    	=> $opts->{'pass'},
+		team		=> $opts->{'team'},
+        channel_id 	=> $opts->{'channel'},
+		token 		=> '',
+		_http  => Cpanel::HTTP::Tiny::FastSSLVerify->new(
+            verify_SSL => $_verify_SSL,
+        ), 
+    };
+
+	return bless $self, $class
+}
+
+
+sub send {
+	my( $self, $args, $result ) = @_;
+	
+	$self->{'token'} = _getToken();
+	
+	my $create_at = int(time() * 1000);
+
+	my $postData = {
+        channel_id      => $self->{'channel_id'},
+        message         => $args->get('body'),
+        create_at       => $create_at+0
+	};
+	my url = "$self->{'host'}/api/v3/teams/$self->{'team'}/channels/$self->{'channel_id'}/posts/create"
+	my result = $self->{'_http'}->post($url, { 
+			headers => $self_headers(), 
+			content	=> $postData,
+		});
+}
 
 sub _getToken {
-    my $username = 'admin';
-    my $password = 'admin';
-    my $loginEndPoint = '/users/login';
-
-	my $client = REST:: Client->new();
-	$client->setHost;
-	$client->POST();
-	my $response = $client->responseContent();
-	my $token = "BEARER " . $response['Token'];
-	return $authToken
-}
-
-sub createPost {
+	my ($self) = @_;
     
-	my( $args, $result ) = @_;
-	my $postTitle = $args->get('subject');
-	my $postBody = $args->get('body');
-
-	my $postEndPoint = $apiVer . '/teams/' . $teamId . '/channels/' . $channelId . '/posts/create';
-	my $channelId = '';
-	my $teamId = '';
-	my $token = _getToken();
+    my $data = $self->{'_http'}->post("$self->{'host'}/api/v3/users/login", {
+        headers		=> $self->_headers,
+		content		=> {
+			name     => $self->{'team'},
+        	login_id => $self->{'user'},
+        	password => $self->{'pass'},
+		}
+	});
 	
-	my $headers = { Accept => 'application/json', 
-					Authorization => $token 
-	};
-	
-	my $postData = { message => $postMessage,
-					channel_id => $channelId 
-	};
-
-	my $client = REST::Client->new();
-	$client->setHost($host);
-	$client->POST( $postEndPoint, $headers, $postData );
-	my $response = $client->responseContent();
-
+	my $header = $data->{'header'};
+	my $token = $header->{'token'};
+	return $token
 }
+
+sub _headers {
+	my ($self) = @_;
+
+		my $headers = [
+			'Content-Type'      => 'application/json',
+			'X-Requested-With'  => 'XMLHttpRequest',
+		];
+
+		# initial_load is fine with just the Cookie, other endpoints like channels/
+		# require Authorization. We'll just always include both to be sure.
+		if (exists $self->{'token'}) {
+			push(@{$headers},
+				'Cookie'        => 'MMAUTHTOKEN=' . $self->{'token'},
+				'Authorization' => 'Bearer ' . $self->{'token'},
+			);
+		}
+
+	return $headers;
+};
+
