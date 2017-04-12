@@ -1,17 +1,19 @@
 use strict;
 use warnings;
 
-package Cpanel::iContact::Provider::Mattermost::Class;
+package Mattermost::Class;
 
 #use Cpanel::iContact::Provider::Mattermost::Mattermost;
-use Cpanel::HTTP::Tiny::FastSSLVerify	();
-use Cpanel::Exception	();
-use Cpanel::JSON		();
+#use Cpanel::HTTP::Tiny::FastSSLVerify	();
+#use Cpanel::Exception	();
+use JSON;
+use HTTP::Tiny;
 use Try::Tiny;
 
-use parent 'Cpanel::iContact::Provider';
-## See Cpanel::Pushbullet for example
+#use parent 'Cpanel::iContact::Provider';
+
 our $_verify_ssl = 1;
+
 # #Opts:
 #
 #	- Host			(string, required)	
@@ -29,12 +31,15 @@ sub new {
         host     	=> $opts{'host'},
         user     	=> $opts{'user'},
         pass    	=> $opts{'pass'},
-	team		=> $opts{'team'},
+        team		=> $opts{'team'},
         channel_id 	=> $opts{'channel'},
-	token 		=> '',
-	_http  => Cpanel::HTTP::Tiny::FastSSLVerify->new(
+        token 		=> '',
+        _http  => HTTP::Tiny->new(
             verify_SSL => $_verify_ssl,
         ), 
+        #_http  => Cpanel::HTTP::Tiny::FastSSLVerify->new(
+        #    verify_SSL => $_verify_ssl,
+        #), 
     };
 
 	return bless $self, $class;
