@@ -1,4 +1,4 @@
-package Mattermost;
+package Cpanel::iContact::Provider::Mattermost::Class;
 
 ## This module implements the Mattermost iContact provider
 use strict;
@@ -6,7 +6,7 @@ use strict;
 use JSON;
 use HTTP::Tiny;
 
-my $_verify_ssl = 0;
+my $_verify_ssl = 1;
 
 sub new {
     my ($class, %opts) = @_;
@@ -36,9 +36,6 @@ sub send_message {
             content => encode_json($postData),
     });
     
-#my $parsed_result;
-#   $parsed_result = from_json($result->{'content'}, { utf8  => 1 } ) ;
-
     return $result;
 
 }
@@ -47,6 +44,7 @@ sub get_hook_url {
     my ($self) = @_;
     return $self->{'hook_url'};
 }
+
 sub get_headers {
     my ($self) = @_;
 

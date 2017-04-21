@@ -15,11 +15,11 @@ sub send {
     
     ## Get our args and contact info
     my $args = $self->{'args'};
-    my $contact = $self->{'contact'}
-    my @errs
+    my $contact = $self->{'contact'};
+    my @errs;
 
     # Set configurations and build message
-    my $hook_url = $contact->{'HOOKURL'}
+    my $hook_url = $contact->{'CONTACTMATTERMOST'};
     my $subject = $args->{'subject'};
     my $body = $args->{'text_body'};
 
