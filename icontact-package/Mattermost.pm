@@ -8,20 +8,18 @@ use parent 'Cpanel::iContact::Provider';
 use Cpanel::iContact::Provider::Mattermost::Class;
 use Try::Tiny;
 
-
-use
 sub send {
     my ($self) = @_;
-    
+
     ## Get our args and contact info
     my $args = $self->{'args'};
     my $contact = $self->{'contact'};
     my @errs;
 
     # Set configurations and build message
-    my $hook_url = $contact->{'CONTACTMATTERMOST'};
-    my $subject = $args->{'subject'};
-    my $body = $args->{'text_body'};
+    my $hook_url = $args->{'to'}[0];
+    my $subject_copy = $args->{'subject'};
+    my $body_copy = ${ $args->{'text_body'} };
 
     require Encode;
     my $subject      = Encode::decode_utf8( $subject_copy, $Encode::FB_QUIET );
@@ -29,25 +27,22 @@ sub send {
 
     my $msg_text = $subject . "\n\n" . $body;
 
-    ## Create new Mattermost class instance
-    my $MM = Mattermost->new(hook_url => $hook_url);
-    
     try {
         ## Send our formatted message
-        my $result = $MM->send_message(body => $msg_Text);
+        my $result = _send_message( body => $msg_text, 'hook_url' => $hook_url );
 
-    } catch {
-            push(
-                @errs,
-                Cpanel::Exception::create(
-                    'ConnectionFailed',
-                    'The system failed to send the message to “[_1]” due to an error: [_2]',
-                    [ $destination, $_ ]
-                )
-            );
-        };
     }
-    
+    catch {
+        push(
+            @errs,
+            Cpanel::Exception::create(
+                'ConnectionFailed',
+                'The system failed to send the message to “[_1]” due to an error: [_2]',
+                [ $hook_url, $_ ]
+            )
+        );
+    };
+
     if (@errs) {
         die Cpanel::Exception::create( 'Collection', [ exceptions => \@errs ] );
     }
@@ -56,4 +51,26 @@ sub send {
 
 }
 
+sub _send_message {
+    my %opts = @_;
 
+    my $headers = {
+        'Content-Type'      => 'application/json',
+        'X-Requested-With'  => 'XMLHttpRequest',
+    };
+
+    require HTTP::Tiny;
+    my $postData = {
+        text => $opts{'body'},
+    };
+    require JSON::MaybeXS;
+    my $result = HTTP::Tiny->new()->post($opts{'hook_url'}, {
+            headers => $headers,
+            content => JSON::MaybeXS::encode_json($postData),
+    });
+
+    return $result;
+
+}
+
+1;
