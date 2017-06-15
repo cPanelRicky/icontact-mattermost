@@ -13,6 +13,6 @@ proper docs
 ## iContact Module
 
 - install the files in the icontact-package as per the instructions in our documentation on creating
-an iContact Plugin. 
+an iContact Plugin. https://documentation.cpanel.net/display/CKB/How+To+Create+Custom+Server+Notifications
 
 * Note: All files and directories will be in the same directory specified to be used by iContact provider plugins.
