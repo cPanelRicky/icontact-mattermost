@@ -1,18 +1,18 @@
 # Summary
 
-For now, this repository contains both cpanel and non-cpanel implementations. The cPanel implementation 
-is found in the icontact-package directory.
+This iContact plugin allows you to send your server notifications to your Mattermost instance. For more information on Mattermost, take a look at their about page linked to below.
 
-# Usage
+[https://about.mattermost.com/]
 
-## General Library(Non-cPanel)
+# Install
 
-* See the Mattermost.t file in the 't' directory for an example. Future documentation will provide proper
-proper docs
+- Create the iContact Provider directory if it doesn't already exist
+    mkdir -p /var/cpanel/perl/Cpanel/iContact/Provider
 
-## iContact Module
+- Copy the contents of the icontact-mattermost directory into the Provider directory created previously
+    cp -R icontact-package/* /var/cpanel/perl/Cpanel/iContact/Provider
 
-- install the files in the icontact-package as per the instructions in our documentation on creating
-an iContact Plugin. 
+# Configure
 
-* Note: All files and directories will be in the same directory specified to be used by iContact provider plugins.
+- Generate your incoming webhook for Mattermost 
+- Save the webhook to the Mattermost configuration option in the Contact Information section of WHM.

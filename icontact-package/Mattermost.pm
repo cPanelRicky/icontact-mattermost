@@ -5,7 +5,6 @@ use warnings;
 
 use parent 'Cpanel::iContact::Provider';
 
-use Cpanel::iContact::Provider::Mattermost::Class;
 use Try::Tiny;
 
 sub send {
