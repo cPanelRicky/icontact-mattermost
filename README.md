@@ -14,5 +14,5 @@ https://about.mattermost.com/
 
 # Configure
 
-- Generate your incoming webhook for Mattermost 
+- Generate your incoming webhook for Mattermost. See the [Mattermost documentation](https://docs.mattermost.com/developer/webhooks-incoming.html) for the steps to generate the webhook
 - Save the webhook to the Mattermost configuration option in the Contact Information section of WHM.
