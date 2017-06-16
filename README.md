@@ -2,7 +2,7 @@
 
 This iContact plugin allows you to send your server notifications to your Mattermost instance. For more information on Mattermost, take a look at their about page linked to below.
 
-[https://about.mattermost.com/]
+https://about.mattermost.com/
 
 # Install
 
