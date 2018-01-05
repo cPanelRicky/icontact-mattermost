@@ -20,9 +20,17 @@ sub send {
     my $subject_copy = $args->{'subject'};
     my $body_copy = ${ $args->{'text_body'} };
 
-    require Encode;
-    my $subject      = Encode::decode_utf8( $subject_copy, $Encode::FB_QUIET );
-    my $body         = Encode::decode_utf8( $body_copy, $Encode::FB_QUIET );
+
+    my $subject;
+    my $body;
+    if( _is_version_lt_69() ) {
+        require Encode;
+        $subject      = Encode::decode_utf8( $subject_copy, $Encode::FB_QUIET );
+        $body         = Encode::decode_utf8( $body_copy, $Encode::FB_QUIET );
+    } else {
+        $subject = $subject_copy;
+        $body    = $body_copy;
+    }
 
     my $msg_text = $subject . "\n\n" . $body;
 
@@ -48,6 +56,15 @@ sub send {
 
     return 1;
 
+}
+
+sub _is_version_lt_69 {
+    open( my $fh, "<", "/usr/local/cpanel/version" );
+    my $ver_line = readline($fh);
+    chomp($ver_line);
+    close($fh);
+    my ( $major_ver ) = $ver_line =~ m/\d+\.(\d+)\./;
+    return ( $major_ver && $major_ver < 69 );
 }
 
 sub _send_message {
