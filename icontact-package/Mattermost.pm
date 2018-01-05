@@ -20,10 +20,16 @@ sub send {
     my $subject_copy = $args->{'subject'};
     my $body_copy = ${ $args->{'text_body'} };
 
+
+    my $subject;
+    my $body;
     if( _is_version_lt_69() ) {
         require Encode;
-        my $subject      = Encode::decode_utf8( $subject_copy, $Encode::FB_QUIET );
-        my $body         = Encode::decode_utf8( $body_copy, $Encode::FB_QUIET );
+        $subject      = Encode::decode_utf8( $subject_copy, $Encode::FB_QUIET );
+        $body         = Encode::decode_utf8( $body_copy, $Encode::FB_QUIET );
+    } else {
+        $subject = $subject_copy;
+        $body    = $body_copy;
     }
 
     my $msg_text = $subject . "\n\n" . $body;
